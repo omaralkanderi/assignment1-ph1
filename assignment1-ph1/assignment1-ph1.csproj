@@ -44,8 +44,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandCenter.cs" />
+    <Compile Include="HelpCommand.cs" />
+    <Compile Include="ICommand.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SetNameCommand.cs" />
+    <Compile Include="StatusCommand.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

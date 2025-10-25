@@ -5,118 +5,82 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace assignment1_ph1
-{
+{ ///////////////////////////////////// PART 3 /////////////////////////////////////    
     internal class CommandCenter
     {
         public string userName { get; private set; }
         public bool isOperational { get; private set; }
         public int commandsProcessed { get; private set; }
 
+        private readonly Dictionary<string, ICommand> commands;
+
         public CommandCenter()
         {
             this.userName = "Guest";
             this.isOperational = true;
             this.commandsProcessed = 0;
+
+            // populate command dictionary
+            commands = new Dictionary<string, ICommand>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "help", new HelpCommand() },
+                { "status", new StatusCommand() },
+                { "set_name", new SetNameCommand() }
+            };
         }
 
         public void run()
-
         {
-            Console.WriteLine("Welcome to my first project -part2 *_*");
+            Console.WriteLine("Welcome to my first project -part3 *_*");
             Console.WriteLine(); // to make space between lines
-            Console.WriteLine($"Hello {userName} choose the listied command    ");
-                Console.WriteLine("1. help - Display available commands");
-                Console.WriteLine("2. set_name - Set your user name");
-                Console.WriteLine("3. status - Show current status");
-                Console.WriteLine("4. exit - Exit the application");
-                 Console.WriteLine();
-            Console.Write("Enter command:  ");
-           
+            DisplayMenu();
 
             while (isOperational)
             {
-               
-                // prompt the user for input
                 string input = Console.ReadLine();
-                switch (input)
+                if (string.IsNullOrWhiteSpace(input))
                 {
-
-                    case "help":
-                        ShowHelp();
-
-                        commandsProcessed++;
-                        break;
-                    case "set_name":
-                        userName = setUserNAme(userName);
-                        //Console.WriteLine($"hello { userName}");
-                        repeatcommand(userName);
-                        commandsProcessed++;
-                        break;
-                    case "status":
-                        ShowStatus(userName, isOperational, commandsProcessed);
-                        commandsProcessed++;
-                        repeatcommand(userName);
-                        break;
-                    case "exit":
-                        ExitApplication(userName);
-                        isOperational = false;
-                        break;
-                    default:
-                        InvalidCommand(input);
-                        commandsProcessed++;
-                        //repeatcommand(userName);
-                        break;
-
-
-
-
-
+                    // ignore empty input
+                    continue;
                 }
 
+                // Handle exit separately
+                if (string.Equals(input, "exit", StringComparison.OrdinalIgnoreCase))
+                {
+                    ExitApplication(userName);
+                    isOperational = false;
+                    break;
+                }
 
-
-
+                // Lookup command and execute
+                if (commands.TryGetValue(input, out ICommand cmd))
+                {
+                    cmd.Execute(this);
+                    IncrementCommandsProcessed();
+                }
+                else
+                {
+                    InvalidCommand(input);
+                    IncrementCommandsProcessed();
+                }
             }
         }
 
-        //all methods
-        public static void ShowHelp()
+        // allow commands to set user name via CommandCenter instance
+        public void SetUserName(string name)
         {
-            Console.WriteLine();
-            Console.WriteLine("Available commands:");
-            Console.WriteLine("help - Display available commands");
-            Console.WriteLine("set_name - Set your user name");
-            Console.WriteLine("status - Show current status");
-            Console.WriteLine("exit - Exit the application");
-            Console.WriteLine();
-            Console.Write("Enter command:  ");
-        }
-        public static string setUserNAme(string name)
-        {
-            Console.WriteLine("Enter your new user name: ");
-            string newName = Console.ReadLine();
-            return newName;
-        }
-        static void ShowStatus(string userName, bool isOperational, int commandsProcessed)
-        {
-            Console.WriteLine("Current Status:");
-            Console.WriteLine($"User Name: {userName}");
-            Console.WriteLine($"Operational: {isOperational}");
-            Console.WriteLine($"Commands Processed: {commandsProcessed}");
+            this.userName = name;
         }
 
-        static void ExitApplication(string userName)
+        // allow CommandCenter loop to increment
+        public void IncrementCommandsProcessed()
         {
-            Console.WriteLine($"Goodbye, {userName}.");
+            this.commandsProcessed++;
+        }
 
-        }
-        static void InvalidCommand(string command)
+        // prints the available commands and prompt
+        public void DisplayMenu()
         {
-            Console.WriteLine($"Invalid command: '{command}'. Type 'help' to see available commands.");
-        }
-        static void repeatcommand(string userName)
-        {
-            Console.WriteLine();
             Console.WriteLine($"Hello {userName} choose the listied command    ");
             Console.WriteLine("1. help - Display available commands");
             Console.WriteLine("2. set_name - Set your user name");
@@ -125,6 +89,18 @@ namespace assignment1_ph1
             Console.WriteLine();
             Console.Write("Enter command:  ");
         }
-    }
 
+        // kept as helper methods for exit/invalid
+        static void ExitApplication(string userName)
+        {
+            Console.WriteLine($"Goodbye, {userName}.");
+        }
+
+        static void InvalidCommand(string command)
+        {
+            Console.WriteLine($"Invalid command: '{command}'. Type 'help' to see available commands.");
+            Console.WriteLine();
+            Console.Write("Enter command:  ");
+        }
+    }
 }
