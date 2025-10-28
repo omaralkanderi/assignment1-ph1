@@ -11,7 +11,7 @@ namespace assignment1_ph1
         static void Main(string[] args)
         {
             CommandCenter commandCenter = new CommandCenter();
-            commandCenter.run();
+            commandCenter.RunAsync();
     
         }
         }
